@@ -1,3 +1,4 @@
+const AdminEquipment = require("../Models/AdminEquipment");
 const User = require("../Models/User");
 const bcrypt = require('bcrypt');
 
@@ -59,5 +60,103 @@ const Register = async (req, res) => {
     }
 };
 
-const AdminEquipmentsControllers = { Login, Register };
+const AddEquipment = async (req, res) => {
+    try {
+        const { id, name, quantity, image } = req.body;
+        console.log("req.body", req.body);
+        console.log("req.files", req.files);
+
+        // Check if image exists in files
+        let imageBase64 = null;
+        if (req.files && req.files[0]) {
+            imageBase64 = req.files[0].buffer.toString('base64');
+        }
+
+        // Check if the request contains an ID, meaning it's an update
+        if (id) {
+            // Find the equipment by ID and update it
+            const updatedEquipment = await AdminEquipment.findByIdAndUpdate(
+                id,
+                { name, quantity, image: imageBase64 },
+                { new: true }  // Return the updated document
+            );
+
+            if (!updatedEquipment) {
+                return res.status(404).json({
+                    message: 'Equipment not found',
+                });
+            }
+
+            // Send success response for update
+            return res.status(200).json({
+                message: 'Equipment updated successfully',
+                data: updatedEquipment,
+            });
+        } else {
+            // No ID provided, create a new equipment record
+            const newEquipment = new AdminEquipment({
+                name,
+                quantity,
+                image: imageBase64,  // Allow null if image is not provided
+            });
+
+            // Save the equipment to the database
+            await newEquipment.save();
+
+            // Send success response for creation
+            return res.status(201).json({
+                message: 'Equipment added successfully',
+                data: newEquipment,
+            });
+        }
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({
+            message: 'Failed to process equipment',
+            error: err.message,
+        });
+    }
+};
+
+const GetEquipments = async (req, res) => {
+    try {
+        const equipmentList = await AdminEquipment.find();  // Fetch all documents
+        res.status(200).json(equipmentList);  // Respond with the list of equipment
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({
+            message: 'Failed to retrieve equipment list',
+            error: err.message,
+        });
+    }
+};
+
+const DeleteEquipments = async (req, res) => {
+    try {
+        const { id } = req.params;  // Get the ID from the request parameters
+
+        // Find the equipment by ID and remove it
+        const deletedEquipment = await AdminEquipment.findByIdAndDelete(id);
+
+        if (!deletedEquipment) {
+            return res.status(404).json({
+                message: 'Equipment not found',
+            });
+        }
+
+        // Send success response
+        res.status(200).json({
+            message: 'Equipment deleted successfully',
+            data: deletedEquipment,  // Send the deleted equipment data in response
+        });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({
+            message: 'Failed to delete equipment',
+            error: err.message,
+        });
+    }
+};
+
+const AdminEquipmentsControllers = { Login, Register, AddEquipment, GetEquipments, DeleteEquipments };
 module.exports = AdminEquipmentsControllers;
