@@ -1,9 +1,0 @@
-mongoose - advance version hn mongodb ka esmai hum model or schemas use kar sakte hn,
-
-esmai limitations bhi lga sakte hn, data type decide ker sakte hn, validations apply kar sakte hn, number or string ko identify ker sakte hn, schmeas apply ker sakte hn esmai, fields ko control ker sakte hn ki itni field hi honi chaiye, 
-
-install - npm i mongoose
-
-ref - React ka ek hook hn, agar hume direct real dom ko access karna hn toh use karte hn, yeah use na karna good behaviour hota hn
-
-state & props - hum virtual dom mai changes karte hn state or props ke through,
